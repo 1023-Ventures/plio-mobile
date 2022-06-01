@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@1023-ventures/darri-core": "0.3.29",
-        "@1023-ventures/plio-api": "0.1.0",
+        "@1023-ventures/plio-api": "0.3.38",
         "@1023-ventures/serra-common": "0.3.33",
         "@react-native-async-storage/async-storage": "1.16.1",
         "@react-native-community/masked-view": "0.1.11",
