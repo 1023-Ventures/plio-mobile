@@ -1,0 +1,7 @@
+**/*.Api*/**/*.json
+**/*-api/**/*.json
+plio-mobile/paleo-serra*/
+plio-mobile/node_modules/
+node_modules/
+dist/
+__generated__

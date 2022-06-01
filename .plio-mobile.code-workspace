@@ -1,0 +1,42 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "codeTemplateTool.templatesPath": "{workspace}/.templates",
+        "search.useIgnoreFiles": false,
+        "window.title": "${rootName}",
+        "emmet.showExpandedAbbreviation": "never",
+        "files.exclude": {
+            "**/.vscode": false,
+            "**/node_modules": false,
+            "**/package-lock.json": false,
+            "**/yarn.lock": false,
+            "**/yarn-error.log": true,
+            "**/dist": false,
+            "**/bin": true,
+            "**/obj": true,
+            "**/.vs": true
+        },
+        "search.exclude": {
+            "**/.expo": true,
+            "**/*.Api*/**/*.json": true,
+            "**/.vscode": true,
+            "**/build": true,
+            "**/dist": true,
+            "**/node_modules": true,
+            "package-lock.json": true,
+            "**/obj": true,
+            "**/bin": true,
+            "**/Properties": true,
+            "**/*.lock": true
+        },
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "extensions": {
+        "recommendations": ["esbenp.prettier-vscode"]
+    }
+}

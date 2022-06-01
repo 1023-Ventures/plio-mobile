@@ -1,0 +1,165 @@
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { {{baseName}}Controller } from '../apis/{{baseName}}Controller';  /* If getting an error here, you will likely need to add this controller to your blacklistedReducers list in your paleo gen config */
+import {
+    {{#hasEnums}}{{#vars}}{{#isEnum}}{{baseName}}{{nameInCamelCase}},{{/isEnum}}{{/vars}}
+    {{/hasEnums}}
+    {{baseName}}
+} from '../models/{{baseName}}';
+
+{{#hasImports}}
+{{#imports}}
+import { {{{.}}} } from '../models/{{.}}';
+{{/imports}}
+{{/hasImports}}
+
+export namespace {{baseName}}Async {
+    export const readAll = async () => {
+        return {{baseName}}Controller.readAll
+            .fetch({}, { baseURL: process.env.API_URL })
+            .then((resp) => {
+                const data = resp.data;
+                return Promise.resolve(data as {{baseName}}[]);
+            })
+            .catch((err) => {
+                console.log(`{{baseName}}Controller.readAll error: ${err}`);
+                return Promise.reject(err);
+            }); 
+    }
+
+    export const read = async ({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}Id: string) => {
+        return {{baseName}}Controller.read
+            .fetch(
+                {
+                    url: { id: {{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}Id }
+                },
+                { baseURL: process.env.API_URL }
+            )
+            .then((resp) => {
+                const data = resp.data;
+                return Promise.resolve(data as {{baseName}});
+            })
+            .catch((err) => {
+                console.log(`{{baseName}}Controller.read error: ${err}`);
+                return Promise.reject(err);
+            });
+    }
+
+    export const create = async ({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}: {{baseName}}, reload: boolean = true) => {
+        return {{baseName}}Controller.create
+            .fetch(
+                {
+                    url: { reload: reload },
+                    body: {
+                        ...{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}
+                    } as {{baseName}}
+                },
+                { baseURL: process.env.API_URL }
+            )
+            .then((resp) => {
+                const data = resp.data;
+                return Promise.resolve(data as {{baseName}});
+            })
+            .catch((err) => {
+                console.log(`{{baseName}}Controller.create error: ${err}`);
+                return Promise.reject(err);
+            });        
+    }
+    
+    export const update = async ({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}: {{baseName}}, reload: boolean = true) => {
+        return {{baseName}}Controller.update
+        .fetch(
+            {
+                url: { reload: reload },
+                body: {{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}
+            },
+            { baseURL: process.env.API_URL }
+        )
+        .then((resp) => {
+            const data = resp.data;
+            return Promise.resolve(data as {{baseName}});
+        })
+        .catch((err) => {
+            console.log(`{{baseName}}Controller.update error: ${err}`);
+            return Promise.reject(err);
+        });    
+    }
+}
+
+export namespace {{baseName}}Redux {
+    export type State = {
+        {{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s: Array<{{baseName}}>;
+        active{{baseName}}?: {{baseName}};
+        loading{{baseName}}: boolean;
+    };
+
+    export const initialState: State = {
+        {{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s: [],
+        active{{baseName}}: undefined,
+        loading{{baseName}}: false
+    };
+
+    export const load{{baseName}}s = createAsyncThunk<{{baseName}}[]>('{{baseName}}/loadAll', async () => {
+        return {{baseName}}Async.readAll();
+    });
+
+    export const read{{baseName}} = createAsyncThunk<{{baseName}}, string>('{{baseName}}/read', async ({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}Id) => {
+        return {{baseName}}Async.read({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}Id);
+    });
+
+    export const insert{{baseName}} = createAsyncThunk<{{baseName}}, {{baseName}}>('{{baseName}}/insert', async ({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}) => {
+        return {{baseName}}Async.create({{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}});
+    });
+
+    type UpdateArgs = { {{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}: {{baseName}}, reload: boolean };
+    export const update{{baseName}} = createAsyncThunk<{{baseName}}, UpdateArgs>('{{baseName}}/update', async (args) => {
+        return {{baseName}}Async.update(args.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}, args.reload);
+    });
+
+    function updateArray(array: Array<{{baseName}}>, element: {{baseName}}, insertIfMissing: boolean) {
+        if (element.id) {
+            const idx = array.findIndex((b) => b.id == element.id);
+            if (idx > -1) array[idx] = element;
+        }
+    }
+
+    const slice = createSlice({
+        name: '{{baseName}}s',
+        initialState,
+        reducers: {
+            setActive{{baseName}}(state: State, action: PayloadAction<{{baseName}}>) {
+                updateArray(state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s, action.payload, false);
+                state.active{{baseName}} = action.payload;
+            }
+        },
+        extraReducers: (builder) => {
+            builder.addCase(load{{baseName}}s.pending, (state, action) => {
+                state.loading{{baseName}} = true;
+            });
+
+            builder.addCase(load{{baseName}}s.fulfilled, (state, action) => {
+                state.loading{{baseName}} = false;
+                state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s = action.payload;
+            });
+
+            builder.addCase(insert{{baseName}}.fulfilled, (state, action) => {
+                state.active{{baseName}} = action.payload;
+                state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s = [...state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s, action.payload]
+            });
+
+            builder.addCase(read{{baseName}}.pending, (state, action) => {
+                state.loading{{baseName}} = true;
+            });
+
+            builder.addCase(read{{baseName}}.fulfilled, (state, action) => {
+                state.loading{{baseName}} = false;
+                state.active{{baseName}} = action.payload;
+                //state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s = [...state.{{#lambda.lowercase}}{{baseName}}{{/lambda.lowercase}}s, action.payload]
+            });
+        }
+    });
+
+    export const Actions = slice.actions;
+
+    export const Reducer = slice.reducer;
+       
+}
